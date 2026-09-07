@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แบบประเมิน OCI-R (อาการย้ำคิดย้ำทำ)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen py-10 px-4">
+    <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        <!-- Header -->
+        <div class="bg-indigo-600 p-6 text-white text-center">
+            <h1 class="text-2xl font-bold mb-2">แบบประเมินอาการย้ำคิดย้ำทำ OCI-R</h1>
+            <p class="text-indigo-100 text-sm">แบบประเมินนี้ใช้สำหรับคัดกรองอาการเบื้องต้น โปรดพิจารณาความรู้สึกในช่วง 1 เดือนที่ผ่านมา</p>
+        </div>
+
+        <!-- Instructions -->
+        <div class="p-6 border-b bg-indigo-50">
+            <h2 class="font-semibold text-indigo-800 mb-2">วิธีทำแบบประเมิน:</h2>
+            <p class="text-sm text-gray-700">เลือกคะแนนที่ตรงกับระดับความรบกวนหรือความไม่สบายใจที่คุณได้รับจากอาการนั้นๆ:</p>
+            <div class="grid grid-cols-5 gap-1 mt-3 text-xs text-center font-medium">
+                <div class="p-2 bg-white rounded border">0: ไม่เลย</div>
+                <div class="p-2 bg-white rounded border">1: เล็กน้อย</div>
+                <div class="p-2 bg-white rounded border">2: ปานกลาง</div>
+                <div class="p-2 bg-white rounded border">3: มาก</div>
+                <div class="p-2 bg-white rounded border">4: มากที่สุด</div>
+            </div>
+        </div>
+
+        <!-- Assessment Form -->
+        <form id="ociForm" class="p-6 space-y-6">
+            <div id="questionsContainer" class="space-y-8">
+                <!-- Questions will be injected here -->
+            </div>
+
+            <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition duration-200 mt-8">
+                ประมวลผลคะแนน
+            </button>
+        </form>
+
+        <!-- Results (Hidden by default) -->
+        <div id="resultSection" class="hidden p-6 border-t bg-gray-100">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">ผลการประเมิน</h2>
+            
+            <div class="bg-white p-6 rounded-lg shadow-inner mb-6">
+                <p class="text-lg mb-2">คะแนนรวมของคุณคือ: <span id="totalScore" class="text-3xl font-bold text-indigo-600">0</span> / 72</p>
+                <div id="clinicalSignificance" class="p-3 rounded-md font-semibold text-center mb-4"></div>
+                <p class="text-sm text-gray-600 leading-relaxed" id="interpretationText"></p>
+            </div>
+
+            <h3 class="font-bold text-gray-700 mb-3">รายละเอียดแยกตามด้าน:</h3>
+            <div id="subscaleResults" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Subscale charts will go here -->
+            </div>
+
+            <div class="mt-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-sm text-yellow-800">
+                <strong>หมายเหตุ:</strong> แบบประเมินนี้ไม่ใช่การวินิจฉัยทางการแพทย์ หากคุณรู้สึกกังวลหรือคะแนนอยู่ในเกณฑ์สูง แนะนำให้ปรึกษาจิตแพทย์หรือผู้เชี่ยวชาญเพื่อรับคำแนะนำและการตรวจวินิจฉัยที่ถูกต้อง
+            </div>
+            
+            <button onclick="location.reload()" class="w-full mt-6 text-indigo-600 font-semibold hover:underline">ทำแบบประเมินอีกครั้ง</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { id: 1, text: "ฉันเก็บสะสมสิ่งของไว้มากจนมันเกะกะทางเดิน", cat: "Hoarding" },
+            { id: 2, text: "ฉันตรวจเช็คสิ่งต่างๆ บ่อยเกินความจำเป็น", cat: "Checking" },
+            { id: 3, text: "ฉันจะรู้สึกไม่สบายใจหากสิ่งของไม่ได้ถูกจัดวางอย่างเหมาะสม", cat: "Ordering" },
+            { id: 4, text: "ฉันรู้สึกเหมือนถูกบังคับให้นับเลขในขณะที่กำลังทำสิ่งต่างๆ", cat: "Neutralizing" },
+            { id: 5, text: "ฉันรู้สึกทำใจลำบากที่จะแตะต้องสิ่งของเมื่อรู้ว่าคนแปลกหน้าเคยแตะมันมาก่อน", cat: "Washing" },
+            { id: 6, text: "ฉันพบว่ามันยากที่จะควบคุมความคิดของตัวเอง", cat: "Obsessing" },
+            { id: 7, text: "ฉันสะสมสิ่งของที่ฉันไม่จำเป็นต้องใช้", cat: "Hoarding" },
+            { id: 8, text: "ฉันตรวจเช็คประตู หน้าต่าง ลิ้นชัก ฯลฯ ซ้ำแล้วซ้ำเล่า", cat: "Checking" },
+            { id: 9, text: "ฉันจะหงุดหงิดหากคนอื่นมาเปลี่ยนวิธีการจัดวางสิ่งของของฉัน", cat: "Ordering" },
+            { id: 10, text: "ฉันรู้สึกว่าต้องพูดหรือนึกถึงตัวเลขบางตัวซ้ำๆ", cat: "Neutralizing" },
+            { id: 11, text: "บางครั้งฉันต้องล้างหรือทำความสะอาดตัวเองเพียงเพราะรู้สึกว่าสกปรก/ปนเปื้อน", cat: "Washing" },
+            { id: 12, text: "ฉันรู้สึกแย่กับความคิดที่ไม่พึงประสงค์ที่ผุดขึ้นมาในหัวโดยไม่ตั้งใจ", cat: "Obsessing" },
+            { id: 13, text: "ฉันหลีกเลี่ยงการทิ้งสิ่งของเพราะกลัวว่าอาจจำเป็นต้องใช้ในภายหลัง", cat: "Hoarding" },
+            { id: 14, text: "ฉันตรวจเช็คก๊อกแก๊ส ก๊อกน้ำ และสวิตช์ไฟซ้ำแล้วซ้ำเล่าหลังจากปิดแล้ว", cat: "Checking" },
+            { id: 15, text: "ฉันต้องการให้สิ่งของถูกจัดวางตามลำดับที่เฉพาะเจาะจง", cat: "Ordering" },
+            { id: 16, text: "ฉันรู้สึกว่ามีตัวเลขที่ดีและตัวเลขที่ไม่ดี", cat: "Neutralizing" },
+            { id: 17, text: "ฉันล้างมือบ่อยและนานกว่าที่จำเป็น", cat: "Washing" },
+            { id: 18, text: "ฉันมักจะถูกรบกวนด้วยความคิดที่น่ารังเกียจหรือน่ากลัว", cat: "Obsessing" }
+        ];
+
+        const catNames = {
+            "Hoarding": "การสะสมสิ่งของ",
+            "Checking": "การตรวจเช็ค",
+            "Ordering": "ความเป็นระเบียบ",
+            "Neutralizing": "การกระทำเพื่อลบล้าง",
+            "Washing": "การล้าง/ความสะอาด",
+            "Obsessing": "ความคิดย้ำคิด"
+        };
+
+        const container = document.getElementById('questionsContainer');
+
+        questions.forEach((q, index) => {
+            const div = document.createElement('div');
+            div.className = "question-item p-4 rounded-lg bg-gray-50 border border-gray-100 hover:border-indigo-200 transition-colors";
+            div.innerHTML = `
+                <p class="font-medium text-gray-800 mb-4">${index + 1}. ${q.text}</p>
+                <div class="flex justify-between items-center max-w-sm">
+                    ${[0, 1, 2, 3, 4].map(val => `
+                        <label class="flex flex-col items-center cursor-pointer group">
+                            <input type="radio" name="q${q.id}" value="${val}" required class="w-5 h-5 text-indigo-600 border-gray-300 focus:ring-indigo-500">
+                            <span class="text-xs text-gray-500 mt-1 group-hover:text-indigo-600">${val}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+            container.appendChild(div);
+        });
+
+        document.getElementById('ociForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            let total = 0;
+            const subscores = { "Hoarding": 0, "Checking": 0, "Ordering": 0, "Neutralizing": 0, "Washing": 0, "Obsessing": 0 };
+
+            questions.forEach(q => {
+                const val = parseInt(formData.get(`q${q.id}`));
+                total += val;
+                subscores[q.cat] += val;
+            });
+
+            document.getElementById('totalScore').innerText = total;
+            const sig = document.getElementById('clinicalSignificance');
+            const interp = document.getElementById('interpretationText');
+
+            if (total >= 21) {
+                sig.innerText = "คะแนนอยู่ในเกณฑ์ที่มีนัยสำคัญทางคลินิก (มีแนวโน้มเป็นโรค OCD)";
+                sig.className = "p-3 rounded-md font-semibold text-center mb-4 bg-red-100 text-red-700";
+                interp.innerText = "คะแนนของคุณสูงกว่าเกณฑ์คัดกรองเบื้องต้น (21 คะแนน) ซึ่งอาจหมายถึงว่าอาการเหล่านี้กำลังรบกวนการใช้ชีวิตประจำวันของคุณอย่างมีนัยสำคัญ แนะนำให้ปรึกษาผู้เชี่ยวชาญเพื่อประเมินอย่างละเอียด";
+            } else {
+                sig.innerText = "คะแนนอยู่ในเกณฑ์ปกติ";
+                sig.className = "p-3 rounded-md font-semibold text-center mb-4 bg-green-100 text-green-700";
+                interp.innerText = "คะแนนของคุณยังไม่ถึงเกณฑ์ที่บ่งชี้ถึงภาวะโรคย้ำคิดย้ำทำ อย่างไรก็ตาม หากคุณรู้สึกว่าอาการเหล่านี้สร้างความลำบากใจ คุณยังสามารถขอคำปรึกษาเพื่อแนวทางการจัดการความเครียดได้";
+            }
+
+            const subContainer = document.getElementById('subscaleResults');
+            subContainer.innerHTML = '';
+            for (const [cat, score] of Object.entries(subscores)) {
+                const pct = (score / 12) * 100;
+                subContainer.innerHTML += `
+                    <div class="bg-gray-50 p-3 rounded border">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="font-medium">${catNames[cat]}</span>
+                            <span>${score} / 12</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-indigo-500 h-2 rounded-full" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('ociForm').classList.add('hidden');
+            document.getElementById('resultSection').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
